@@ -31,12 +31,13 @@ public class BiomeFinder {
            System.out.flush();;
            System.exit(1);
        }
-        int seed = 1;
+        long seed = 1;
         int checknum = 1;
         try {
-            seed = Integer.parseInt(args[0]);
+            seed = Long.parseLong(args[0]);
             checknum = Integer.parseInt(args[1]);
         } catch (NumberFormatException e) {
+		e.printStackTrace();
             System.err.println("Arguments must be integers.");
             System.exit(1);
         }
@@ -49,9 +50,9 @@ public class BiomeFinder {
 
         Log.i(String.format("Startseed is %s, endseed is %s", seed, seed + checknum));
 
-        int lastSeed = -1;
+        long lastSeed = -1;
         Log.isShowingDebug = false;
-        for(int i = seed; c && i < (seed + checknum); i++) {
+        for(long i = seed; c && i < (seed + checknum); i++) {
             if (isPerfectBiome(i, xRadius, yRadius, names, true)) {
                 Log.debug(String.format("Found stronghold within +/- x%s y%s on seed %s", xRadius, yRadius, i));
                 c = false;
