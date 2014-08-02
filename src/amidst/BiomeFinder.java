@@ -50,6 +50,7 @@ public class BiomeFinder {
         Log.i(String.format("Startseed is %s, endseed is %s", seed, seed + checknum));
 
         int lastSeed = -1;
+        Log.isShowingDebug = false;
         for(int i = seed; c && i < (seed + checknum); i++) {
             if (isPerfectBiome(i, xRadius, yRadius, names, true)) {
                 Log.debug(String.format("Found stronghold within +/- x%s y%s on seed %s", xRadius, yRadius, i));
@@ -58,9 +59,9 @@ public class BiomeFinder {
             if(i % 5000 == 0) {
                 Log.debug(String.format("Seed %s failed", i));
             }
-            lastSeed = seed;
+            lastSeed = i;
         }
-        Log.debug(String.format("Last tested seed was %s", lastSeed));
+        Log.i(String.format("Last tested seed was %s", lastSeed));
     }
     public static void setup() {
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
