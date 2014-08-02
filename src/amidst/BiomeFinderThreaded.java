@@ -8,10 +8,11 @@ public class BiomeFinderThreaded {
 		System.out.println("Fyrer opp "+processors+" jobber for å lete etter himmelen....");
 		ExecutorService executorService = Executors.newFixedThreadPool(processors);
 		long seed = Long.parseLong(args[0]);
-		int max = Integer.parseInt(args[1]);
-		for(int i=0;i<max;i+=1000) {
+		long max = Integer.parseInt(args[1]);
+		int perJob = 1000;
+		for(long i=0;i<max;i+=perJob) {
 			try {
-				executorService.execute(new BiomeFinder(seed+i, 1000, File.createTempFile("mcfinder", "tmp")));
+				executorService.execute(new BiomeFinder(seed+(i*perJob), perJob, File.createTempFile("mcfinder", "tmp")));
 			}catch(Exception ex) {
 				ex.printStackTrace();
 			}

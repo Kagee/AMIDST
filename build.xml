@@ -56,7 +56,7 @@
     </jar>
       <jar jarfile="${dist}/findbiome.jar" basedir="${build}">
           <manifest>
-              <attribute name="Main-Class" value="amidst.BiomeFinder"/>
+              <attribute name="Main-Class" value="amidst.BiomeFinderThreaded"/>
               <attribute name="Class-Path" value=". ${lib.list}"/>
               <attribute name="Build-Date" value="${DSTAMP}"/>
               <attribute name="Build-Time" value="${TSTAMP}"/>

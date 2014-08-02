@@ -13,7 +13,10 @@ import amidst.version.VersionFactory;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.io.File;
+import java.io.*;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * Created by Anders Einar Hilden <hildenae@gmail.com on 02.08.14.
@@ -22,11 +25,13 @@ public class BiomeFinder extends Thread {
 
         long startSeed = 1;
         long numSeedsToCheck = 1;
+	File tmpPath;
 	String names[] = {"Taiga", "Plains", "Mesa", "Jungle", "Desert", "Roofed Forest", "Forest", "Savanna"};
 
         public BiomeFinder(long seed, int todo, File mcPath) {
 		startSeed = seed;
 		numSeedsToCheck = todo;
+		tmpPath = mcPath;
         }
 
     public static void main(String args[]) {
@@ -65,20 +70,31 @@ public class BiomeFinder extends Thread {
             if (isPerfectBiome(i, xRadius, yRadius, names, true)) {
                 System.out.println(String.format("Seed %s might be The One", i));
                 c = false;
-            }
+            } else {
+		//System.out.println("Meh");
+		}
             lastSeed = i;
         }
         Log.i(String.format("Last tested seed was %s", lastSeed));
     }
 
     public void setup() {
+	Util.setMinecraftDirectory();
+	if(tmpPath != null) {
+		try {
+			Files.copy(Util.minecraftDirectory.toPath(), tmpPath.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			Log.debug("Using temp dir: "+tmpPath);
+		}catch(Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread thread, Throwable e) {
                 Log.debug(e, "Ops: " + thread);
             }
         });
-        Util.setMinecraftDirectory();
         if (!Util.minecraftDirectory.exists() || !Util.minecraftDirectory.isDirectory()) {
             Log.debug("Unable to find Minecraft directory at: " + Util.minecraftDirectory);
             return;
@@ -90,7 +106,11 @@ public class BiomeFinder extends Thread {
         MinecraftProfile[] localVersions = versionFactory.getProfiles();
         Log.debug(String.format("Found %s profiles, selecting #0", localVersions.length));
         try {
-            Util.setProfileDirectory(localVersions[0].getGameDir());
+	    if(tmpPath == null) {
+	            Util.setProfileDirectory(localVersions[0].getGameDir());
+	    } else {
+		    Util.setProfileDirectory(tmpPath.getAbsolutePath());
+	    }
             Log.debug(String.format("Gamedir is %s", localVersions[0].getJarFile()));
 
             MinecraftUtil.setBiomeInterface(new Minecraft(localVersions[0].getJarFile()).createInterface());
