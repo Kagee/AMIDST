@@ -2,6 +2,7 @@ package amidst;
 
 import amidst.logging.Log;
 import amidst.map.MapObjectStronghold;
+import amidst.map.layers.SpawnLayer;
 import amidst.map.layers.StrongholdLayer;
 import amidst.minecraft.Biome;
 import amidst.minecraft.Minecraft;
@@ -11,26 +12,30 @@ import amidst.version.LatestVersionList;
 import amidst.version.MinecraftProfile;
 import amidst.version.VersionFactory;
 
+import java.awt.*;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
+ *
  * Created by Anders Einar Hilden <hildenae@gmail.com on 02.08.14.
+ *
  */
 public class BiomeFinder {
 
     public static void main(String args[]) {
 
-        if (args.length < 2) {
-            System.out.println("Arguments: startseed checknum");
-            System.out.flush();
-            System.exit(1);
-        }
-        long seed = 1;
-        long checknum = 1;
+       if(args.length < 2) {
+           System.out.println("Arguments: startseed checknum");
+           System.out.flush();;
+           System.exit(1);
+       }
+        int seed = 1;
+        int checknum = 1;
         try {
-            seed = Long.parseLong(args[0]);
-            checknum = Long.parseLong(args[1]);
+            seed = Integer.parseInt(args[0]);
+            checknum = Integer.parseInt(args[1]);
         } catch (NumberFormatException e) {
             System.err.println("Arguments must be integers.");
             System.exit(1);
@@ -44,21 +49,20 @@ public class BiomeFinder {
 
         Log.i(String.format("Startseed is %s, endseed is %s", seed, seed + checknum));
 
-        long lastSeed = -1;
+        int lastSeed = -1;
         Log.isShowingDebug = false;
-        for (long i = seed; c && i < (seed + checknum); i++) {
+        for(int i = seed; c && i < (seed + checknum); i++) {
             if (isPerfectBiome(i, xRadius, yRadius, names, true)) {
                 Log.debug(String.format("Found stronghold within +/- x%s y%s on seed %s", xRadius, yRadius, i));
                 c = false;
             }
-            if (i % 5000 == 0) {
+            if(i % 5000 == 0) {
                 Log.debug(String.format("Seed %s failed", i));
             }
             lastSeed = i;
         }
         Log.i(String.format("Last tested seed was %s", lastSeed));
     }
-
     public static void setup() {
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
@@ -83,44 +87,53 @@ public class BiomeFinder {
 
             MinecraftUtil.setBiomeInterface(new Minecraft(localVersions[0].getJarFile()).createInterface());
 
+           // long seed = stringToLong("7526988084274174185");
+           // Log.debug(String.format("Seed is: %s", seed));
+           // String type = "default";
+           // Log.debug(String.format("Biome type is %s", type));
         } catch (MalformedURLException e) {
             Log.crash(e, "MalformedURLException on Minecraft load.");
         }
     }
-
     public static boolean isPerfectBiome(long seed, int xRadius, int yRadius, String[] names, boolean stronghold) {
         Options.instance.seed = seed;
         MinecraftUtil.createWorld(seed, "default");
 
-        if (stronghold) {
+        if(stronghold) {
             StrongholdLayer sl = new StrongholdLayer();
             sl.findStrongholds();
             MapObjectStronghold[] strongholds = sl.getStrongholds();
-            if (!strongholdWithinBorders(strongholds, xRadius, yRadius)) {
+            if(strongholdsWithinBorders(strongholds, xRadius, yRadius) == 0){
+                //Log.debug(String.format("There are no strongholds within +/- x%s y%s on seed %s", xRadius, yRadius, seed));
                 return false;
             }
         }
-
-        ArrayList<String> biomes = new ArrayList<String>();
-
-        if (getBiomeNameAt(0, 0).contains("Ocean")) {
-            return false;
-        }
-        for (int x = -xRadius; x < xRadius; x += 200) {
-            for (int y = -yRadius; y < yRadius; y += 200) {
-                String biome = getBiomeNameAt(x, y);
-                if (!biomes.contains(biome)) {
-                    biomes.add(biome);
-                }
-            }
-        }
-        for (String b : names) {
-            if (!biomes.contains(b)) {
-                return false;
-            }
-        }
-        return true;
+	ArrayList<String> biomes = new ArrayList<>();
+        if(getBiomeNameAt(0, 0).contains("Ocean")) {return false;}
+	for(int x=-1000;x<1000;x+=200) {
+		for(int y=-1000;y<1000;y+=200) {
+			String biome = getBiomeNameAt(x,y);
+			if(!biomes.contains(biome)) {
+				biomes.add(biome);
+			}
+		}
+	}
+	for(String b : names) {
+		if(!containsBiome(biomes, b)) {
+			return false;
+		}
+	}
+	return true;
     }
+
+	public static boolean containsBiome(ArrayList<String> biomes, String biome) {
+		for(String b : biomes) {
+			if(b.startsWith(biome)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
     public static String getBiomeNameAt(int x, int y) {
         int size = 1;
@@ -145,15 +158,6 @@ public class BiomeFinder {
             }
         }
         return within;
-    }
-
-    private static boolean strongholdWithinBorders(MapObjectStronghold[] strongholds, int radiusX, int radiusY) {
-        for (int i = 0; i < 3; i++) {
-            if (Math.abs(strongholds[i].getX()) < radiusX && Math.abs(strongholds[i].getY()) < radiusY) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static long stringToLong(String seed) {
