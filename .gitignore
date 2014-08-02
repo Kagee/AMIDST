@@ -13,3 +13,6 @@
 /logs
 /nbproject
 /build
+.idea/
+AMIDST.iml
+/out/
