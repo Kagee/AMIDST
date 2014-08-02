@@ -54,6 +54,17 @@
         <include name="**/*.png" />
       </fileset>
     </jar>
+      <jar jarfile="${dist}/findbiome.jar" basedir="${build}">
+          <manifest>
+              <attribute name="Main-Class" value="amidst.BiomeFinder"/>
+              <attribute name="Class-Path" value=". ${lib.list}"/>
+              <attribute name="Build-Date" value="${DSTAMP}"/>
+              <attribute name="Build-Time" value="${TSTAMP}"/>
+          </manifest>
+          <fileset dir="${src}">
+              <include name="**/*.png" />
+          </fileset>
+      </jar>
   </target>
 
   <target name="clean" description="clean up" >
