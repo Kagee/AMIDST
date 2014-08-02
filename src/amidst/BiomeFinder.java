@@ -108,22 +108,22 @@ public class BiomeFinder {
                 return false;
             }
         }
-
+	ArrayList<String> biomes = new ArrayList<>();
         if(getBiomeNameAt(0, 0).contains("Ocean")) {return false;}
-        //Point spawn = new SpawnLayer().getSpawnPosition();
-        //Log.debug(String.format("Spawn is as x%s y%s", spawn.getX(), spawn.getY()));
-
-
-        ArrayList<String> biomes = new ArrayList<String>();
-        Collections.addAll(biomes, names);
-
-        // Iterate through points within x/yRadius, check biome of each 200th.
-        // Remove from list if found.
-        // If list in empty, return true.
-        //xRadius
-        // yRadius
-
-        return true;
+	for(int x=-1000;x<1000;x+=200) {
+		for(int y=-1000;y<1000;y+=200) {
+			String biome = getBiomeNameAt(x,y);
+			if(!biomes.contains(biome)) {
+				biomes.add(biome);
+			}
+		}
+	}
+	for(String b : names) {
+		if(!biomes.contains(b)) {
+			return false;
+		}
+	}
+	return true;
     }
 
     public static String getBiomeNameAt(int x, int y) {
