@@ -13,22 +13,33 @@ import amidst.version.VersionFactory;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.io.File;
 
 /**
  * Created by Anders Einar Hilden <hildenae@gmail.com on 02.08.14.
  */
-public class BiomeFinder {
+public class BiomeFinder extends Thread {
+
+        long startSeed = 1;
+        long numSeedsToCheck = 1;
+	String names[] = {"Taiga", "Plains", "Mesa", "Jungle", "Desert", "Roofed Forest", "Forest", "Savanna"};
+
+        public BiomeFinder(long seed, int todo, File mcPath) {
+		startSeed = seed;
+		numSeedsToCheck = todo;
+        }
 
     public static void main(String args[]) {
+	new BiomeFinder(args);
 
+    }
+
+    public BiomeFinder(String[] args) {
         if (args.length < 2) {
             System.out.println("Arguments: <startseed (-long to +long)> <number of seed to check from startseed>");
             System.out.flush();
             System.exit(1);
         }
-
-        long startSeed = 1;
-        long numSeedsToCheck = 1;
         try {
             startSeed = Long.parseLong(args[0]);
             numSeedsToCheck = Long.parseLong(args[1]);
@@ -37,12 +48,14 @@ public class BiomeFinder {
             System.err.println("Arguments must be integers.");
             System.exit(1);
         }
+	run();
+    }
 
+    public void run() {
         setup();
         boolean c = true;
         int xRadius = 500;
         int yRadius = 500;
-        String names[] = {"Taiga", "Plains", "Mesa", "Jungle", "Desert", "Roofed Forest", "Forest", "Savanna"};
         Log.i(String.format("Startseed is %s, endseed is %s", startSeed, startSeed + numSeedsToCheck));
 
         long lastSeed = -1;
@@ -58,7 +71,7 @@ public class BiomeFinder {
         Log.i(String.format("Last tested seed was %s", lastSeed));
     }
 
-    public static void setup() {
+    public void setup() {
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread thread, Throwable e) {
@@ -87,7 +100,7 @@ public class BiomeFinder {
         }
     }
 
-    public static boolean isPerfectBiome(long seed, int xRadius, int yRadius, String[] names, boolean stronghold) {
+    public boolean isPerfectBiome(long seed, int xRadius, int yRadius, String[] names, boolean stronghold) {
         Options.instance.seed = seed;
         MinecraftUtil.createWorld(seed, "default");
 
@@ -119,7 +132,7 @@ public class BiomeFinder {
         return true;
     }
 
-    public static boolean containsBiome(ArrayList<String> biomes, String biome) {
+    public boolean containsBiome(ArrayList<String> biomes, String biome) {
         for (String b : biomes) {
             if (b.startsWith(biome)) {
                 return true;
@@ -128,7 +141,7 @@ public class BiomeFinder {
         return false;
     }
 
-    public static String getBiomeNameAt(int x, int y) {
+    public String getBiomeNameAt(int x, int y) {
         int size = 1;
         int x1 = x - size >> 2;
         int y1 = y - size >> 2;
@@ -143,7 +156,7 @@ public class BiomeFinder {
         return localBiome.name;
     }
 
-    private static int strongholdsWithinBorders(int radiusX, int radiusY) {
+    private int strongholdsWithinBorders(int radiusX, int radiusY) {
         StrongholdLayer sl = new StrongholdLayer();
         sl.findStrongholds();
         MapObjectStronghold[] strongholds = sl.getStrongholds();
@@ -156,7 +169,7 @@ public class BiomeFinder {
         return within;
     }
 
-    private static boolean strongholdWithinBorders(int radiusX, int radiusY) {
+    private boolean strongholdWithinBorders(int radiusX, int radiusY) {
         StrongholdLayer sl = new StrongholdLayer();
         sl.findStrongholds();
         MapObjectStronghold[] strongholds = sl.getStrongholds();
@@ -168,7 +181,7 @@ public class BiomeFinder {
         return false;
     }
 
-    private static long stringToLong(String seed) {
+    private long stringToLong(String seed) {
         long ret;
         try {
             ret = Long.parseLong(seed);
