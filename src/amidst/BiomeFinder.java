@@ -26,11 +26,11 @@ public class BiomeFinder {
             System.out.flush();
             System.exit(1);
         }
-        int seed = 1;
-        int checknum = 1;
+        long seed = 1;
+        long checknum = 1;
         try {
-            seed = Integer.parseInt(args[0]);
-            checknum = Integer.parseInt(args[1]);
+            seed = Long.parseLong(args[0]);
+            checknum = Long.parseLong(args[1]);
         } catch (NumberFormatException e) {
             System.err.println("Arguments must be integers.");
             System.exit(1);
@@ -44,9 +44,9 @@ public class BiomeFinder {
 
         Log.i(String.format("Startseed is %s, endseed is %s", seed, seed + checknum));
 
-        int lastSeed = -1;
+        long lastSeed = -1;
         Log.isShowingDebug = false;
-        for (int i = seed; c && i < (seed + checknum); i++) {
+        for (long i = seed; c && i < (seed + checknum); i++) {
             if (isPerfectBiome(i, xRadius, yRadius, names, true)) {
                 Log.debug(String.format("Found stronghold within +/- x%s y%s on seed %s", xRadius, yRadius, i));
                 c = false;
@@ -109,8 +109,8 @@ public class BiomeFinder {
         if (getBiomeNameAt(0, 0).contains("Ocean")) {
             return false;
         }
-        for (int x = -1000; x < 1000; x += 200) {
-            for (int y = -1000; y < 1000; y += 200) {
+        for (int x = -xRadius; x < xRadius; x += 200) {
+            for (int y = -yRadius; y < yRadius; y += 200) {
                 String biome = getBiomeNameAt(x, y);
                 if (!biomes.contains(biome)) {
                     biomes.add(biome);
