@@ -83,10 +83,6 @@ public class BiomeFinder {
 
             MinecraftUtil.setBiomeInterface(new Minecraft(localVersions[0].getJarFile()).createInterface());
 
-            // long seed = stringToLong("7526988084274174185");
-            // Log.debug(String.format("Seed is: %s", seed));
-            // String type = "default";
-            // Log.debug(String.format("Biome type is %s", type));
         } catch (MalformedURLException e) {
             Log.crash(e, "MalformedURLException on Minecraft load.");
         }
@@ -100,12 +96,13 @@ public class BiomeFinder {
             StrongholdLayer sl = new StrongholdLayer();
             sl.findStrongholds();
             MapObjectStronghold[] strongholds = sl.getStrongholds();
-            if (strongholdsWithinBorders(strongholds, xRadius, yRadius) == 0) {
-                //Log.debug(String.format("There are no strongholds within +/- x%s y%s on seed %s", xRadius, yRadius, seed));
+            if (!strongholdWithinBorders(strongholds, xRadius, yRadius)) {
                 return false;
             }
         }
+
         ArrayList<String> biomes = new ArrayList<String>();
+
         if (getBiomeNameAt(0, 0).contains("Ocean")) {
             return false;
         }
@@ -148,6 +145,15 @@ public class BiomeFinder {
             }
         }
         return within;
+    }
+
+    private static boolean strongholdWithinBorders(MapObjectStronghold[] strongholds, int radiusX, int radiusY) {
+        for (int i = 0; i < 3; i++) {
+            if (Math.abs(strongholds[i].getX()) < radiusX && Math.abs(strongholds[i].getY()) < radiusY) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static long stringToLong(String seed) {
