@@ -1,23 +1,24 @@
 #!/bin/bash
-biomes="Plains,Mesa,Roofed Forest,Taiga,Jungle,Savanna"
-checksToDo=10000000
-startSeed=912850000
-checksPerJob=5000000
-mcDir=~/.minecraft
-tmpDir=/tmp/mc
+BIOMES="Plains,Mesa,Roofed Forest,Taiga,Jungle,Savanna"
+TOCHECK=15000000
+STARTSEED=0
+SEEDSPERJOB=4999999
+BASEDIR=~/.minecraft
+TMPDIR=/tmp
 ant
-mkdir $tmpDir
-for ((i=$checksToDo;i>=0;i-=$checksPerJob));
+CURRENTSTARTSEED=$STARTSEED
+for ((i=$TOCHECK;i>=0;i-=$SEEDSPERJOB));
 do
-	j=$(($j+$startSeed))
-	mcTmp="$tmpDir/$RANDOM"
-	rsync -r $mcDir $mcTmp
-	echo "Rsyncing data to $mcTmp"
-	echo "java -Dbiomefinder.mcpath=$mcTmp -Dbiomefinder.debug=false -Dbiomefinder.biomes='Taiga,Plains,Mesa,Jungle,Desert,Roofed Forest,Forest,Savanna' -jar dist/findbiome.jar $j $checksPerJob" >> $tmpDir/cmd.args
+	CURRENTTEMP=$(mktemp -d ${TMPDIR}/mctmp.XXXXXXXX)
+	rsync -r $BASEDIR $CURRENTTEMP
+	echo "Rsyncing data to $CURRENTTEMP"
+	CURRENTENDSEED=$(($CURRENTSTARTSEED+$SEEDSPERJOB))
+	echo -n "echo java -Dbiomefinder.mcpath=$CURRENTTEMP -Dbiomefinder.biomes='${BIOMES}' -jar dist/findbiome.jar " >> ${TMPDIR}/cmd.args
+	echo "${CURRENTSTARTSEED} ${SEEDSPERJOB} >> $tmpDir/scan-${CURRENTSTARTSEED}-to-${CURRENTENDSEED}.log" >> ${TMPDIR}/cmd.args
+	CURRENTSTARTSEED=$(($CURRENTENDSEED+1))
 done
 procs=`cat /proc/cpuinfo|grep processor -c`
-xargs --max-procs=$procs --arg-file=$tmpDir/cmd.args > result.txt
-rm -rf $tmpDir
-# en veldig fin løsning, samle opp alle kommandoene som skal kjøres i en egen fil, en kommando per linje.
-# den catter du inn i xargs --max-proces=<antall CPUer>, da vil xargs fordele alt utover så det alltid kjører
-# N tråder.   Tiperdet mellom hver kjøring må tas en kopi av .minecraft mappa, og gamedir sendes med som java-opsjon
+#xargs --max-procs=$procs --arg-file=$tmpDir/cmd.args > result.txt
+cat ${TMPDIR}/cmd.args
+rm -rf ${TMPDIR}/mctmp.*
+rm ${TMPDIR}/cmd.args
