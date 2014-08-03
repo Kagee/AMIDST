@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Script for running BiomeFinder in paralell
+# Script for running SeedFinder in paralell
 # Author: Tor Henning Ueland < tor.henning@gmail.com >
 #
 #config start

@@ -54,9 +54,9 @@
         <include name="**/*.png" />
       </fileset>
     </jar>
-      <jar jarfile="${dist}/findbiome.jar" basedir="${build}">
+      <jar jarfile="${dist}/seedfinder.jar" basedir="${build}">
           <manifest>
-              <attribute name="Main-Class" value="amidst.BiomeFinder"/>
+              <attribute name="Main-Class" value="amidst.SeedFinder"/>
               <attribute name="Class-Path" value=". ${lib.list}"/>
               <attribute name="Build-Date" value="${DSTAMP}"/>
               <attribute name="Build-Time" value="${TSTAMP}"/>

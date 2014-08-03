@@ -10,7 +10,6 @@ import amidst.preferences.BiomeColorProfile;
 import amidst.version.LatestVersionList;
 import amidst.version.MinecraftProfile;
 import amidst.version.VersionFactory;
-import sun.org.mozilla.javascript.ast.TryStatement;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -22,20 +21,20 @@ import java.util.Arrays;
  * Created by Anders Einar Hilden <hildenae@gmail.com on 02.08.14.
  */
 
-public class BiomeFinder extends Thread {
+public class SeedFinder extends Thread {
 
     long startSeed = 1;
     long numSeedsToCheck = 1;
     File tmpPath;
     String names[] = {"Taiga", "Plains", "Mesa", "Jungle", "Desert", "Roofed Forest", "Forest", "Savanna"};
 
-    public BiomeFinder(long seed, int todo, File mcPath) {
+    public SeedFinder(long seed, int todo, File mcPath) {
         startSeed = seed;
         numSeedsToCheck = todo;
         tmpPath = mcPath;
     }
 
-    public BiomeFinder(String[] args) {
+    public SeedFinder(String[] args) {
         if (args.length < 2) {
             System.out.println("Arguments: <startseed (-long to +long)> <number of seed to check from startseed>");
             System.out.flush();
@@ -54,7 +53,7 @@ public class BiomeFinder extends Thread {
     }
 
     public static void main(String args[]) {
-        new BiomeFinder(args);
+        new SeedFinder(args);
     }
 
     public void updateWantedBiomes() {
