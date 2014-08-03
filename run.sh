@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Script for running BiomeFinder in paralell
-# Author: Tor Henning Ueland < tor.henning@mail.com >
+# Author: Tor Henning Ueland < tor.henning@gmail.com >
 #
 #config start
 BIOMES="Plains,Mesa,Roofed Forest,Taiga,Jungle,Savanna"
