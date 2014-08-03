@@ -4,6 +4,10 @@
 # Author: Tor Henning Ueland < tor.henning@gmail.com >
 #
 #config start
+
+echo "Script is broken, must be updated to new parameters"
+exit
+
 BIOMES="Plains,Mesa,Roofed Forest,Taiga,Jungle,Savanna"
 TOCHECK=10000000
 STARTSEED=20000000
