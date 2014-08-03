@@ -57,7 +57,7 @@ public class SeedFinder extends Thread {
     }
 
     public void updateWantedBiomes() {
-        String biomes = System.getProperty("biomefinder.biomes");
+        String biomes = System.getProperty("sf.biomes");
         if (biomes == null) {
             return;
         } else {
@@ -76,7 +76,7 @@ public class SeedFinder extends Thread {
 
 
         long lastSeed = -1;
-        Log.isShowingDebug = Boolean.parseBoolean(System.getProperty("biomefinder.debug"));
+        Log.isShowingDebug = Boolean.parseBoolean(System.getProperty("sf.debug"));
         for (long i = startSeed; c && i < (startSeed + numSeedsToCheck); i++) {
             if (isPerfectBiome(i, xRadius, yRadius, names, true)) {
                 System.out.println(String.format("[POSSIBLE MATCH] Seed %s", i));
@@ -88,7 +88,7 @@ public class SeedFinder extends Thread {
     }
 
     public void setup() {
-        String overriveMinecraftPath = System.getProperty("biomefinder.mcpath");
+        String overriveMinecraftPath = System.getProperty("sf.mcpath");
         if (overriveMinecraftPath != null) {
             File mcd;
             mcd = new File(overriveMinecraftPath);
@@ -118,7 +118,7 @@ public class SeedFinder extends Thread {
 
         int profileInt = -1;
         if (localVersions.length > 1) {
-            String profileNum = System.getProperty("biomefinder.profileNum", "-1");
+            String profileNum = System.getProperty("sf.profileNum", "-1");
 
             try {
                 profileInt = Integer.parseInt(profileNum);
@@ -127,7 +127,7 @@ public class SeedFinder extends Thread {
 
             if (profileInt == -1) {
                 System.out.println(String.format("Found %s profiles, please select the one to use with"
-                        + " -Dbiomefinder.profileNum=<num>", localVersions.length));
+                        + " -Dsf.profileNum=<num>", localVersions.length));
 
                 for (int i = 0; i < localVersions.length; i++) {
                     System.out.println(String.format(

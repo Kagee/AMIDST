@@ -19,7 +19,7 @@ do
 	rsync -r "$BASEDIR/" "$CURRENTTEMP/."
 	echo "Rsyncing data to $CURRENTTEMP"
 	CURRENTENDSEED=$(($CURRENTSTARTSEED+$SEEDSPERJOB))
-	echo "java -Dbiomefinder.mcpath=$CURRENTTEMP -Dbiomefinder.biomes=\\\"${BIOMES}\\\" -jar dist/findbiome.jar ${CURRENTSTARTSEED} ${SEEDSPERJOB};" >> ${TMPDIR}/cmd.args
+	echo "java -Dsf.mcpath=$CURRENTTEMP -Dsf.biomes=\\\"${BIOMES}\\\" -jar dist/seedfinder.jar ${CURRENTSTARTSEED} ${SEEDSPERJOB};" >> ${TMPDIR}/cmd.args
 	CURRENTSTARTSEED=$(($CURRENTENDSEED+1))
 done
 procs=`cat /proc/cpuinfo|grep processor -c`
