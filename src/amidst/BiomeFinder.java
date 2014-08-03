@@ -10,10 +10,11 @@ import amidst.preferences.BiomeColorProfile;
 import amidst.version.LatestVersionList;
 import amidst.version.MinecraftProfile;
 import amidst.version.VersionFactory;
+import sun.org.mozilla.javascript.ast.TryStatement;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.io.*;
 import java.util.Arrays;
 
 
@@ -34,10 +35,6 @@ public class BiomeFinder extends Thread {
         tmpPath = mcPath;
     }
 
-    public static void main(String args[]) {
-        new BiomeFinder(args);
-    }
-
     public BiomeFinder(String[] args) {
         if (args.length < 2) {
             System.out.println("Arguments: <startseed (-long to +long)> <number of seed to check from startseed>");
@@ -54,6 +51,10 @@ public class BiomeFinder extends Thread {
         }
         updateWantedBiomes();
         run();
+    }
+
+    public static void main(String args[]) {
+        new BiomeFinder(args);
     }
 
     public void updateWantedBiomes() {
@@ -115,14 +116,41 @@ public class BiomeFinder extends Thread {
         VersionFactory versionFactory = new VersionFactory();
         versionFactory.scanForProfiles();
         MinecraftProfile[] localVersions = versionFactory.getProfiles();
-        Log.debug(String.format("Found %s profiles, selecting #0", localVersions.length));
+
+        int profileInt = -1;
+        if (localVersions.length > 1) {
+            String profileNum = System.getProperty("biomefinder.profileNum", "-1");
+
+            try {
+                profileInt = Integer.parseInt(profileNum);
+            } catch (NumberFormatException nfe) {
+            }
+
+            if (profileInt == -1) {
+                System.out.println(String.format("Found %s profiles, please select the one to use with"
+                        + " -Dbiomefinder.profileNum=<num>", localVersions.length));
+
+                for (int i = 0; i < localVersions.length; i++) {
+                    System.out.println(String.format(
+                            "[%s]: %s", i, localVersions[i].getProfileName()));
+                }
+                System.exit(1);
+            }
+
+        } else {
+            profileInt = 0;
+        }
+
+        MinecraftProfile selectedMinecraftProfile = localVersions[profileInt];
+        Log.debug(String.format("Using Minecraft profile #%s, %s", profileInt, localVersions[profileInt].getProfileName()));
+
         try {
 
-            Util.setProfileDirectory(localVersions[0].getGameDir());
+            Util.setProfileDirectory(selectedMinecraftProfile.getGameDir());
 
-            Log.debug(String.format("Gamedir is %s", localVersions[0].getJarFile()));
+            Log.debug(String.format("Gamedir is %s", selectedMinecraftProfile.getJarFile()));
 
-            MinecraftUtil.setBiomeInterface(new Minecraft(localVersions[0].getJarFile()).createInterface());
+            MinecraftUtil.setBiomeInterface(new Minecraft(selectedMinecraftProfile.getJarFile()).createInterface());
 
         } catch (MalformedURLException e) {
             Log.debug(e, "MalformedURLException on Minecraft load.");
