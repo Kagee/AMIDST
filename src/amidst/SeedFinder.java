@@ -21,7 +21,7 @@ import java.util.Arrays;
  * Created by
  * Anders Einar Hilden <hildenae@gmail.com>
  * Tor Henning Ueland <tor.henning@gmail.com>
- * 
+ *
  * August 2014
  */
 

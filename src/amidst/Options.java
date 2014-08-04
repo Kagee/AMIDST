@@ -51,7 +51,10 @@ public enum Options {
 	
 	@Option (name="-mcjson", usage="Sets the path to the minecraft .json", metaVar="<path>")
 	public String minecraftJson;
-	
+
+    @Option (name="-mcseed", usage="Seed to default to", metaVar="123456789")
+    public String cliseed;
+
 	private Options() {
 		seed = 0L;
 		seedText = null;
@@ -61,7 +64,7 @@ public enum Options {
 		preferences = pref;
 		jar				     = new FilePrefModel(   pref, "jar", new File(Util.minecraftDirectory, "bin/minecraft.jar"));
 		showSlimeChunks	     = new BooleanPrefModel(pref, "slimeChunks",	 	 false);
-		showGrid			 = new BooleanPrefModel(pref, "grid",			 	 false);
+		showGrid			 = new BooleanPrefModel(pref, "grid",			 	 true);
 		showNetherFortresses = new BooleanPrefModel(pref, "netherFortressIcons", false);
 		mapFlicking		     = new BooleanPrefModel(pref, "mapFlicking",		 true);
 		mapFading		  	 = new BooleanPrefModel(pref, "mapFading",		     true);

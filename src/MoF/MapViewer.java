@@ -338,11 +338,10 @@ public class MapViewer extends JComponent implements MouseListener, MouseWheelLi
 		Graphics2D g2d = image.createGraphics();
 		
 		worldMap.draw(g2d, 0);
-
 		for (Widget widget : widgets)
 			if (widget.isVisible())
 				widget.draw(g2d, 0);
-		
+
 		try {
 			ImageIO.write(image, "png", f);
 		} catch (IOException e) {
