@@ -1,13 +1,12 @@
 #!/bin/bash
 #
 # Script for running SeedFinder in paralell
-# Author: Tor Henning Ueland < tor.henning@gmail.com >
+# Check result.txt for possible matches during
+# or after execution
+# Author: Ueland
 #
+
 #config start
-
-echo "Script is broken, must be updated to new parameters"
-exit
-
 BIOMES="Plains,Mesa,Roofed Forest,Taiga,Jungle,Savanna"
 TOCHECK=10000000
 STARTSEED=20000000
@@ -15,7 +14,7 @@ SEEDSPERJOB=1000000
 BASEDIR=~/.minecraft
 TMPDIR=/tmp
 #config end 
-ant
+
 CURRENTSTARTSEED=$STARTSEED
 for ((i=$TOCHECK;i>=0;i-=$SEEDSPERJOB));
 do
@@ -23,7 +22,7 @@ do
 	rsync -r "$BASEDIR/" "$CURRENTTEMP/."
 	echo "Rsyncing data to $CURRENTTEMP"
 	CURRENTENDSEED=$(($CURRENTSTARTSEED+$SEEDSPERJOB))
-	echo "java -Dsf.mcpath=$CURRENTTEMP -Dsf.biomes=\\\"${BIOMES}\\\" -jar dist/seedfinder.jar ${CURRENTSTARTSEED} ${SEEDSPERJOB};" >> ${TMPDIR}/cmd.args
+	echo "java -Dsf.mcpath=$CURRENTTEMP -Dsf.requiredbiomes=\\\"${BIOMES}\\\" -jar seedfinder.jar ${CURRENTSTARTSEED} ${CURRENTENDSEED};" >> ${TMPDIR}/cmd.args
 	CURRENTSTARTSEED=$(($CURRENTENDSEED+1))
 done
 procs=`cat /proc/cpuinfo|grep processor -c`
