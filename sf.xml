@@ -1,0 +1,113 @@
+<project name="AMIDST" default="jar" basedir=".">
+  <description>
+    Build AMIDST
+  </description>
+
+  <!-- set global properties for this build -->
+  <property name="src" location="src"/>
+  <property name="lib" location="lib"/>
+  <property name="build" location="build"/>
+  <property name="dist"  location="dist"/>
+
+  <!-- add libraries -->
+  <path id="libs.class.path">
+    <fileset dir="${lib}">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}"/>
+  </target>
+
+  <target name="compile" depends="init" description="compile the source " >
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac
+        srcdir="${src}"
+        destdir="${build}"
+        includeantruntime="false"
+        classpathref="libs.class.path"
+        >
+    </javac>
+  </target>
+
+  <target name="jar" depends="compile" description="generate the distribution" >
+    <!-- Create the distribution directory -->
+    <mkdir dir="${dist}/"/>
+
+    <manifestclasspath property="lib.list" jarfile="${dist}/amidst.jar">
+      <classpath refid="libs.class.path" />
+    </manifestclasspath>
+
+    <!-- Put everything in ${build} into the jar file -->
+    <jar jarfile="${dist}/amidst.jar" basedir="${build}">
+      <manifest>
+        <attribute name="Main-Class" value="amidst.Amidst"/>
+        <attribute name="Class-Path" value=". ${lib.list}"/>
+        <attribute name="Build-Date" value="${DSTAMP}"/>
+        <attribute name="Build-Time" value="${TSTAMP}"/>
+      </manifest>
+      <fileset dir="${src}">
+        <include name="**/*.png" />
+      </fileset>
+    </jar>
+      <jar jarfile="${dist}/seedfinder.jar" basedir="${build}">
+          <manifest>
+              <attribute name="Main-Class" value="amidst.SeedFinder"/>
+              <attribute name="Class-Path" value=". ${lib.list}"/>
+              <attribute name="Build-Date" value="${DSTAMP}"/>
+              <attribute name="Build-Time" value="${TSTAMP}"/>
+          </manifest>
+          <fileset dir="${src}">
+              <include name="**/*.png" />
+          </fileset>
+      </jar>
+  </target>
+
+  <target name="clean" description="clean up" >
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+  </target>
+
+  <target name="run" description="runs amidst" depends="jar">
+    <!-- Run amidst -->
+    <java fork="true" jar="${dist}/amidst.jar" />
+  </target>
+
+   <target name="uberjar" depends="jar">
+        <property name="store.jar.name" value="seedfinder-dist"/>
+        <!-- don't edit below this line -->
+
+        <property name="store.dir" value="store"/>
+        <property name="store.jar" value="${store.dir}/${store.jar.name}.jar"/>
+
+        <echo message="Packaging appname into a single JAR at ${store.jar}"/>
+
+        <delete dir="${store.dir}"/>
+        <mkdir dir="${store.dir}"/>
+
+        <jar destfile="${store.dir}/temp_final.jar" filesetmanifest="skip">
+            <zipgroupfileset dir="dist" includes="*.jar"/>
+            <zipgroupfileset dir="lib" includes="*.jar"/>
+            <fileset dir=".">
+                <include name="LICENSES_COMBINED.txt" />
+            </fileset>
+            <manifest>
+                <attribute name="Main-Class" value="amidst.SeedFinder"/>
+            </manifest>
+        </jar>
+
+        <zip destfile="${store.jar}">
+            <zipfileset src="${store.dir}/temp_final.jar"
+                        excludes="META-INF/*.SF, META-INF/*.DSA, META-INF/*.RSA, LICENSE, LICENSE.TXT, LICENSE.txt, README.TXT"/>
+        </zip>
+
+        <delete file="${store.dir}/temp_final.jar"/>
+
+    </target>
+
+</project>
