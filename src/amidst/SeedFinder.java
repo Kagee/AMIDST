@@ -11,7 +11,9 @@ import amidst.version.LatestVersionList;
 import amidst.version.MinecraftProfile;
 import amidst.version.VersionFactory;
 
-import java.io.File;
+import java.io.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,13 +68,38 @@ public class SeedFinder {
         Log.i("Looking for the following biomes: ");
         Log.i(arrayToString(requiredBiomes));
 
-        for (long seed = startSeed; seed <= endSeed; seed++) {
+        InputStreamReader fileInputStream = new InputStreamReader(System.in);
+        BufferedReader bufferedReader = new BufferedReader(fileInputStream);
+        boolean stop = false;
+
+        BigDecimal ss = BigDecimal.valueOf(startSeed);
+        BigDecimal es = BigDecimal.valueOf(endSeed);
+        Log.i(String.format("Startseed is %s, endseed is %s", ss, es));
+        BigDecimal totalSeeds = es.subtract(ss);
+        Log.i(String.format("Totalseeds %s", totalSeeds));
+        long seed = startSeed;
+        for (; seed <= endSeed && !stop; seed++) {
+            try {
+                while (bufferedReader.ready()) {
+                    String cmd = bufferedReader.readLine();
+                    if (cmd.equals("seed")) {
+                        System.out.println("Current seed:" + seed);
+                    } else if (cmd.equals("stop")) {
+                        stop = true;
+                        Log.debug("Stopping on command");
+                    } else {
+                        System.out.println("Unknown command: " + cmd);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             if (isPerfectSeed(seed)) {
                 System.out.println(String.format("[POSSIBLE MATCH] Seed %s", seed));
             }
         }
-
-        Log.i(String.format("Finished run from startseed %s to endseed %s", startSeed, endSeed));
+        Log.i(String.format("Finished run from startseed %s to endseed %s", startSeed, seed-1));
     }
 
     public void setup() {
@@ -135,6 +162,7 @@ public class SeedFinder {
                 return false;
             }
         }
+
         if (!Boolean.parseBoolean(System.getProperty("sf.wateratzerozero"))) {
             if (getBiomeNameAt(0, 0).contains("Ocean")) {
                 Log.debug("FAIL: Ocean at 0, 0");
@@ -146,7 +174,7 @@ public class SeedFinder {
         for (int x = -radius; x < radius; x += biomeSampleLength) {
             for (int y = -radius; y < radius; y += biomeSampleLength) {
                 String biome = getBiomeNameAt(x, y);
-                System.out.println("BIOME " + biome);
+                //System.out.println("BIOME " + biome);
                 if (!discoveredBiomes.contains(biome)) {
                     discoveredBiomes.add(biome);
                 }
