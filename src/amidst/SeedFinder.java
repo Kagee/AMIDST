@@ -16,13 +16,8 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-
 /**
- * Created by
- * Anders Einar Hilden <hildenae@gmail.com>
- * Tor Henning Ueland <tor.henning@gmail.com>
- * 
- * August 2014
+ * Written by Kagee_ and Ueland - August 2014
  */
 
 public class SeedFinder {
@@ -36,7 +31,7 @@ public class SeedFinder {
 
     /* Default values, might be changed by readSettingsFromProperties() */
     String requiredBiomes[] = {"Taiga", "Plains", "Mesa", "Jungle", "Desert", "Roofed Forest", "Forest", "Savanna"};
-    int xLength = 1000, yLength = 1000;
+    int radius = 1000;
     int minecraftProfileNum = 0;
     boolean strongholdRequired = false; // TODO: implement sf.strongholdRequired
 
@@ -67,9 +62,9 @@ public class SeedFinder {
     }
 
     public void run() {
-        Log.debug(String.format("Startseed is %s, endseed is %s", startSeed, endSeed));
-        Log.debug("Looking for the following biomes: ");
-        Log.debug(arrayToString(requiredBiomes));
+        Log.i(String.format("Startseed is %s, endseed is %s", startSeed, endSeed));
+        Log.i("Looking for the following biomes: ");
+        Log.i(arrayToString(requiredBiomes));
 
         for (long seed = startSeed; seed <= endSeed; seed++) {
             if (isPerfectSeed(seed)) {
@@ -134,23 +129,24 @@ public class SeedFinder {
         Options.instance.seed = seed;
         MinecraftUtil.createWorld(seed, "default");
 
-        if (strongholdRequired) {
+        if (!Boolean.parseBoolean(System.getProperty("sf.dontrequirestrongholds"))) {
             if (strongholdsWithinBorders() == 0) {
                 Log.debug("FAIL: No strongholds");
                 return false;
             }
         }
-
-        if (getBiomeNameAt(0, 0).contains("Ocean")) {
-            Log.debug("FAIL: Ocean at 0, 0");
-            return false;
+        if (!Boolean.parseBoolean(System.getProperty("sf.wateratzerozero"))) {
+            if (getBiomeNameAt(0, 0).contains("Ocean")) {
+                Log.debug("FAIL: Ocean at 0, 0");
+                return false;
+            }
         }
-
         ArrayList<String> discoveredBiomes = new ArrayList<String>();
         /* Iterate over the avalible area, get biome samples every biomeSampleLength block. */
-        for (int x = -xLength; x < xLength; x += biomeSampleLength) {
-            for (int y = -xLength; y < xLength; y += biomeSampleLength) {
+        for (int x = -radius; x < radius; x += biomeSampleLength) {
+            for (int y = -radius; y < radius; y += biomeSampleLength) {
                 String biome = getBiomeNameAt(x, y);
+                System.out.println("BIOME " + biome);
                 if (!discoveredBiomes.contains(biome)) {
                     discoveredBiomes.add(biome);
                 }
@@ -192,7 +188,7 @@ public class SeedFinder {
         MapObjectStronghold[] strongholds = sl.getStrongholds();
         int within = 0;
         for (int i = 0; i < 3; i++) {
-            if (Math.abs(strongholds[i].getX()) < xLength && Math.abs(strongholds[i].getY()) < yLength) {
+            if (Math.abs(strongholds[i].getX()) < radius && Math.abs(strongholds[i].getY()) < radius) {
                 within++;
             }
         }
@@ -217,32 +213,30 @@ public class SeedFinder {
             return;
         } else {
             requiredBiomes = biomes.split(",");
-            Log.debug("New requiredBiomes set to " + arrayToString(requiredBiomes));
+            Log.debug("New requiredbiomes set to " + arrayToString(requiredBiomes));
         }
     }
 
     private void setupXYBorders() { /* Set up borders based on properties or default values */
-        String xl = System.getProperty("sf.xlength");
-        String yl = System.getProperty("sf.ylength");
+        String strRadius = System.getProperty("sf.radius");
 
-        if (xl != null && yl != null) {
+        if (strRadius != null) {
             try {
-                xLength = Math.abs(Integer.parseInt(xl));
-                yLength = Math.abs(Integer.parseInt(yl));
-                Log.debug("Read new xLength and yLength from properties");
+                radius = Math.abs(Integer.parseInt(strRadius));
+                Log.debug("Read new radius from properties");
             } catch (NumberFormatException nfe) {
-                Log.debug("xLength or yLength from properties is invalid, using defaults");
+                Log.debug("radius from properties is invalid, using default");
             }
         } else {
             // Not specified properties, use defaults.
-            Log.debug("sf.xlength and sf.ylength not specified, using defaults");
+            Log.debug("radius not specified, using default");
         }
-        Log.debug(String.format("xLength %s, yLength %s (mapsize: %s)",
-                xLength, yLength, String.format("%s*%s", xLength * 2, yLength * 2)));
+        Log.debug(String.format("radius %s, mapsize: %s",
+                radius, String.format("%s*%s", radius * 2, radius * 2)));
     }
 
     void getMincraftProfileProperty(MinecraftProfile[] localVersions) {
-        String profileNum = System.getProperty("sf.mincraftProfile", "-1");
+        String profileNum = System.getProperty("sf.minecraftprofile", "-1");
 
         try {
             minecraftProfileNum = Integer.parseInt(profileNum);
@@ -250,7 +244,7 @@ public class SeedFinder {
 
         if (minecraftProfileNum == -1 || minecraftProfileNum >= localVersions.length) {
             System.out.println(String.format("Found %s profiles, please select the one to use with"
-                    + " -Dsf.mincraftProfile=<num>", localVersions.length));
+                    + " -Dsf.minecraftprofile=<num>", localVersions.length));
 
             for (int i = 0; i < localVersions.length; i++) {
                 System.out.println(String.format(
@@ -267,6 +261,7 @@ public class SeedFinder {
     private void usage() {
         System.err.println("Arguments: <startseed> <endseed>");
         System.err.println("Min: -9223372036854775808, Max: 9223372036854775807, startseed < endseed");
+        System.err.println("See README_SEEDFINDER.txt for optional arguments and more usage information.");
         System.err.flush();
         System.exit(1);
     }
