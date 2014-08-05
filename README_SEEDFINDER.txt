@@ -45,7 +45,9 @@ matches these requirements. Unless sf.debug is set to true, it will only output
 "[POSSIBLE MATCH] Seed <seed>" whenever it finds a candidate. This seed can 
 then be tested in AMIDST or the Minecraft client itself to see if it's suitable.
 
-
+While running, the current seed will be printet to the console if you 
+type "seed" (and then enter). If you type "stop", the scan will stop, 
+and the last checked seed will be printed to console.
 
 Advanced usage
 --------------
